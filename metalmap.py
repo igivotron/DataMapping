@@ -7,7 +7,9 @@ class MetalMap:
         self.cellSize = 1
         self.decal_x = 0
         self.decal_y = 0
-        self.value = 0
+        self.x = 0
+        self.y = 0
+        self.values = np.array([0])
         self.count = 0
         self.SEND_FREQUENCY = 1
 
@@ -46,17 +48,28 @@ class MetalMap:
         
 
     def addData(self,position,value):
-        x = position[0] // self.cellSize 
-        y = position[1] // self.cellSize 
-        
-        self.value += value
+
         self.count += 1
+        x = (position[0]+(self.cellSize/2)) // self.cellSize 
+        y = (position[1]+(self.cellSize/2)) // self.cellSize
+
+        if x == self.x and y == self.y:
+            self.values = np.append(self.values, value)
+        else:
+            self.addToMatrix(np.mean(self.values[1:]), int(self.x) ,int(self.y))
+            self.x = x
+            self.y = y
+            self.values = np.array([0])
+            self.values = np.append(self.values, value)
+        
         if self.count == self.SEND_FREQUENCY:
-            print(x,y)
-            self.addToMatrix(self.value/self.count, int(x) ,int(y))
-            #self.sendMap()
+            self.addToMatrix(np.mean(self.values[1:]), int(x) ,int(y))
+
             self.count = 0
-            self.value = 0
+            # self.sendMap()
+
 
     def __str__(self):
         return str(self.matrix)
+
+
