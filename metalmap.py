@@ -54,6 +54,7 @@ class MetalMap:
         self.x = x
         self.y = y
         self.data[position] = value
+        print(self.data)
 
         if x == self.x and y == self.y:
             self.values = np.append(self.values, value)
@@ -71,22 +72,46 @@ class MetalMap:
             self.count = 0
             # self.sendMap()
 
-    def clearMatrix(self):
-        self.matrix = -np.ones((3, 2))
 
     def clearData(self):
         self.data = {}
 
-    def clearDecal(self):
+
+    def clearMatrix(self):
         self.decal_x = 0
         self.decal_y = 0
+        self.matrix = -np.ones((3, 2))
 
     def changePrecision(self, newprecision):
         self.cellSize = newprecision
         self.clearMatrix()
-        self.clearDecal()
         for i in self.data:
-            self.addData(i, self.data[i])
+            self.addDataDic(i, self.data[i])
+        self.clearData()
+
+
+    def addDataDic(self, position, value):
+        self.count += 1
+        x = (position[0] + (self.cellSize / 2)) // self.cellSize
+        y = (position[1] + (self.cellSize / 2)) // self.cellSize
+        self.x = x
+        self.y = y
+        self.data[position] = value
+
+        if x == self.x and y == self.y:
+            self.values = np.append(self.values, value)
+
+        else:
+            self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
+            self.x = x
+            self.y = y
+            self.values = np.array([0])
+            self.values = np.append(self.values, value)
+
+        if self.count == 1:
+            self.addToMatrix(np.mean(self.values[1:]), int(x), int(y))
+
+
 
     def __str__(self):
         return str(self.matrix)
