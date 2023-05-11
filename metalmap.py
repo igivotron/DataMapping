@@ -12,6 +12,8 @@ class MetalMap:
         self.count = 0
         self.SEND_FREQUENCY = 1
         self.data = {}
+        self.x = 0
+        self.y = 0
 
     def addColR(self, n):
         self.matrix = np.c_[self.matrix, -np.ones((np.shape(self.matrix)[0], n))]
@@ -51,16 +53,16 @@ class MetalMap:
         self.count += 1
         x = (position[0] + (self.cellSize / 2)) // self.cellSize
         y = (position[1] + (self.cellSize / 2)) // self.cellSize
-        self.x = x
-        self.y = y
         self.data[position] = value
-        print(self.data)
 
         if x == self.x and y == self.y:
             self.values = np.append(self.values, value)
 
         else:
-            self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
+            if len(self.values) == 1:
+                self.addToMatrix(-1, int(self.x), int(self.y))
+            else:
+                self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
             self.x = x
             self.y = y
             self.values = np.array([0])
@@ -80,7 +82,10 @@ class MetalMap:
     def clearMatrix(self):
         self.decal_x = 0
         self.decal_y = 0
+        self.x = 0
+        self.y = 0
         self.matrix = -np.ones((3, 2))
+        self.values = [0]
 
     def changePrecision(self, newprecision):
         self.cellSize = newprecision
@@ -94,22 +99,23 @@ class MetalMap:
         self.count += 1
         x = (position[0] + (self.cellSize / 2)) // self.cellSize
         y = (position[1] + (self.cellSize / 2)) // self.cellSize
-        self.x = x
-        self.y = y
-        self.data[position] = value
 
         if x == self.x and y == self.y:
             self.values = np.append(self.values, value)
 
         else:
-            self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
+            if len(self.values) == 1:
+                self.addToMatrix(-1, int(self.x), int(self.y))
+            else:
+                self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
             self.x = x
             self.y = y
             self.values = np.array([0])
             self.values = np.append(self.values, value)
 
         if self.count == 1:
-            self.addToMatrix(np.mean(self.values[1:]), int(x), int(y))
+            self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
+            self.count = 0
 
 
 
