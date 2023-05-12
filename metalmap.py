@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class MetalMap:
     def __init__(self):
         self.matrix = -np.ones((3, 2))
@@ -8,7 +7,7 @@ class MetalMap:
         self.cellSize = 1
         self.decal_x = 0
         self.decal_y = 0
-        self.values = np.array([0])
+        self.values = np.array([])
         self.count = 0
         self.SEND_FREQUENCY = 1
         self.data = {}
@@ -48,36 +47,31 @@ class MetalMap:
             self.matrix[x + self.decal_x, y + self.decal_y] = value
             self.originCoords = (self.decal_x, self.decal_y)
 
-    def addData(self, position, value):
-
+    def addData(self, position, value, dico=True):
         self.count += 1
         x = (position[0] + (self.cellSize / 2)) // self.cellSize
         y = (position[1] + (self.cellSize / 2)) // self.cellSize
-        self.data[position] = value
+
+        if dico:    # Rajoute les données dans un dictionnaire
+            self.data[position] = value
 
         if x == self.x and y == self.y:
             self.values = np.append(self.values, value)
 
         else:
-            if len(self.values) == 1:
-                self.addToMatrix(-1, int(self.x), int(self.y))
-            else:
-                self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
+            if len(self.values) > 0:    # self.x et self.y sont de base à 0, 0 donc lorsque qu'on exécute le programme, il veut envoyer la moyenne d'une liste vide
+                self.addToMatrix(np.mean(self.values), int(self.x), int(self.y))
             self.x = x
             self.y = y
-            self.values = np.array([0])
-            self.values = np.append(self.values, value)
-
+            self.values = np.array([value])
+        
         if self.count == self.SEND_FREQUENCY:
-            self.addToMatrix(np.mean(self.values[1:]), int(x), int(y))
-
+            self.addToMatrix(np.mean(self.values), int(self.x), int(self.y))
             self.count = 0
-            # self.sendMap()
-
+            #self.sendMap()
 
     def clearData(self):
         self.data = {}
-
 
     def clearMatrix(self):
         self.decal_x = 0
@@ -91,32 +85,8 @@ class MetalMap:
         self.cellSize = newprecision
         self.clearMatrix()
         for i in self.data:
-            self.addDataDic(i, self.data[i])
+            self.addData(i, self.data[i], dico=False)
         self.clearData()
-
-
-    def addDataDic(self, position, value):
-        self.count += 1
-        x = (position[0] + (self.cellSize / 2)) // self.cellSize
-        y = (position[1] + (self.cellSize / 2)) // self.cellSize
-
-        if x == self.x and y == self.y:
-            self.values = np.append(self.values, value)
-
-        else:
-            if len(self.values) == 1:
-                self.addToMatrix(-1, int(self.x), int(self.y))
-            else:
-                self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
-            self.x = x
-            self.y = y
-            self.values = np.array([0])
-            self.values = np.append(self.values, value)
-
-        if self.count == 1:
-            self.addToMatrix(np.mean(self.values[1:]), int(self.x), int(self.y))
-            self.count = 0
-
 
 
     def __str__(self):
