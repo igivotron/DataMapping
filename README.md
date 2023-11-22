@@ -1,2 +1,2 @@
 # PP2
-Crée une carte de valeurs moyennes à partir de données mesurées et de coordonnées.
+Creates a map of average values from data and coordinates
